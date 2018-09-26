@@ -2,6 +2,8 @@
 
 This app is a simple app meant to be used to build automated test cases.
 
+You can use it online currently in [https://dry-ocean-41976.herokuapp.com](https://dry-ocean-41976.herokuapp.com).
+
 ## Features
 
 * You can create Lists and Users
