@@ -23,6 +23,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
+    redis (4.0.2)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -52,6 +53,7 @@ DEPENDENCIES
   capybara
   puma
   rack-test
+  redis
   rspec
   sinatra
 
