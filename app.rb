@@ -25,6 +25,14 @@ module App
       def list_title(params)
         "List: #{params[:list_name]}"
       end
+
+      def users_by_list(name)
+        $redis
+          .get(name)
+          .split(",")
+          .reject { |uuid| blank?(uuid) }
+          .map { |uuid| JSON.parse($redis.get("user-" + uuid)) }
+      end
     end
 
     get "/" do
@@ -40,12 +48,7 @@ module App
       @title = list_title(params)
 
       @users = if $redis.exists(list_name(params))
-                 user_uuids = $redis
-                   .get(list_name(params))
-                   .split(",")
-                   .reject { |uuid| blank?(uuid) }
-
-                 user_uuids.map { |uuid| JSON.parse($redis.get("user-" + uuid)) }
+                 users_by_list(list_name(params))
                else
                  $redis.set(list_name(params), "", ex: App::UNIT_TIME)
                  []
@@ -58,6 +61,23 @@ module App
       @title = list_title(params)
 
       erb :new
+    end
+
+    get "/lists/:list_name/login" do
+      erb :login
+    end
+
+    post "/lists/:list_name/login" do
+      @user = users_by_list(list_name(params))
+        .select { |user| user["email"] == params[:email] }[0]
+
+      if @user["password"] == params[:password]
+        @title = "Welcome, #{@user["name"]}."
+        erb :success
+      else
+        @error = true
+        erb :login
+      end
     end
 
     post "/lists/:list_name/" do

@@ -82,6 +82,39 @@ describe App::Application, type: :feature do
 
         expect(page).to have_content "Email and password are mandatory"
       end
+
+      it "should be able to login" do
+        click_on "Login"
+
+        fill_in "Email", with: "john.doe@example.com"
+        fill_in "Password", with: "secret"
+
+        click_on "Submit"
+
+        expect(page).to have_content "Welcome, John Doe"
+      end
+
+      it "should not be able to login with wrong email" do
+        click_on "Login"
+
+        fill_in "Email", with: "john.doe@example"
+        fill_in "Password", with: "secret"
+
+        click_on "Submit"
+
+        expect(page).to have_content "Wrong Email or Password"
+      end
+
+      it "should not be able to login with wrong password" do
+        click_on "Login"
+
+        fill_in "Email", with: "john.doe@example.com"
+        fill_in "Password", with: "other password"
+
+        click_on "Submit"
+
+        expect(page).to have_content "Wrong Email or Password"
+      end
     end
 
     context "should not add a new user without" do
