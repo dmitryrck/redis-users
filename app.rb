@@ -80,7 +80,7 @@ module App
       end
     end
 
-    post "/lists/:list_name/" do
+    post "/lists/:list_name/?" do
       if present?(params[:email]) && present?(params[:password])
         if $redis.exists(list_name(params))
           user_uuid = SecureRandom.uuid
