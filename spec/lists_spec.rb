@@ -90,10 +90,10 @@ describe App::Application, type: :feature do
         fill_in "Name", with: "list1"
         click_on "Submit"
         click_on "New User"
+        fill_in "Name", with: "John Doe"
       end
 
       it "email" do
-        fill_in "Name", with: "John Doe"
         fill_in "Password", with: "secret"
         click_on "Submit"
 
@@ -101,7 +101,6 @@ describe App::Application, type: :feature do
       end
 
       it "password" do
-        fill_in "Name", with: "John Doe"
         fill_in "Email", with: "john.doe@example.com"
         click_on "Submit"
 
