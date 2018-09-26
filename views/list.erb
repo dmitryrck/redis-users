@@ -8,6 +8,7 @@
       <th scope="col">Id</th>
       <th scope="col">Name</th>
       <th scope="col">Email</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -16,6 +17,7 @@
         <th><%= user["uuid"] %></th>
         <td><%= user["name"] %></td>
         <td><%= user["email"] %></td>
+        <td><a class="btn btn-danger" title="Delete" href="/users/<%= user["uuid"] %>/delete">&#x2716;</a></td>
       </tr>
     <% end %>
   </tbody>

@@ -31,6 +31,20 @@ describe App::Application, type: :feature do
       expect(page).to have_content "john.doe@example.com"
     end
 
+    it "should be able to delete" do
+      visit "/"
+      fill_in "Name", with: "list1"
+      click_on "Submit"
+      click_on "New User"
+      fill_in "Name", with: "John Doe"
+      fill_in "Email", with: "john.doe@example.com"
+      fill_in "Password", with: "secret"
+      click_on "Submit"
+
+      expect { click_on "Delete" }
+        .to change { page.has_content?("John Doe") }
+    end
+
     context "should not add a new user without" do
       before do
         visit "/"

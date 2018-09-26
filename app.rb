@@ -15,11 +15,11 @@ module App
       end
 
       def list_name(params)
-        "list-" + params[:list_name]
+        "list-" + params.fetch(:list_name, params["list_name"])
       end
 
       def list_url(params)
-        "/lists/#{params[:list_name]}"
+        "/lists/#{params.fetch(:list_name, params["list_name"])}"
       end
 
       def list_title(params)
@@ -83,6 +83,19 @@ module App
         @error = true
 
         erb :new
+      end
+    end
+
+    get "/users/:user_uuid/delete" do
+      if $redis.exists("user-" + params[:user_uuid])
+        user = JSON.parse($redis.get("user-" + params[:user_uuid]))
+        list_content = $redis.get(list_name(user))
+        $redis.set(list_name(user), list_content.gsub(user["uuid"], ""))
+        $redis.del("user-" + user["uuid"])
+
+        redirect list_url(user)
+      else
+        not_found
       end
     end
   end
