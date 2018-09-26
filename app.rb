@@ -5,6 +5,10 @@ module App
   TEN_MIN   = 60*10
 
   class Application < Sinatra::Base
+    set :test_file, Proc.new {
+      File.read File.dirname(__FILE__)+"/spec/lists_spec.rb"
+    }
+
     helpers do
       def present?(value = nil)
         value != nil && value != ""
@@ -38,6 +42,11 @@ module App
     get "/" do
       @title = "Home"
       erb :index
+    end
+
+    get "/about" do
+      @title = "About this app"
+      erb :about
     end
 
     get "/lists" do
