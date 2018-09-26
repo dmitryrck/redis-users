@@ -1,0 +1,31 @@
+version: "2"
+
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+      - bundle_path:/bundle
+    environment:
+      - BUNDLE_PATH=/bundle/vendor
+      - BUNDLE_APP_CONFIG=/app/.bundle
+      - BUNDLE_BIN=/bundle/vendor/bin
+      - GEM_HOME=/bundle/vendor
+    user: ruby
+    working_dir: /app
+    command: bundle exec puma -p 3000 config.ru
+    ports:
+      - "3000:3000"
+    links:
+      - db
+
+  db:
+    image: redis
+    expose:
+      - "6379"
+    volumes:
+      - redis:/data
+
+volumes:
+  bundle_path:
+  redis:
