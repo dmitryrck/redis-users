@@ -31,18 +31,57 @@ describe App::Application, type: :feature do
       expect(page).to have_content "john.doe@example.com"
     end
 
-    it "should be able to delete" do
-      visit "/"
-      fill_in "Name", with: "list1"
-      click_on "Submit"
-      click_on "New User"
-      fill_in "Name", with: "John Doe"
-      fill_in "Email", with: "john.doe@example.com"
-      fill_in "Password", with: "secret"
-      click_on "Submit"
+    context "when there is a user in the database " do
+      before do
+        visit "/"
+        fill_in "Name", with: "list1"
+        click_on "Submit"
+        click_on "New User"
+        fill_in "Name", with: "John Doe"
+        fill_in "Email", with: "john.doe@example.com"
+        fill_in "Password", with: "secret"
+        click_on "Submit"
+      end
 
-      expect { click_on "Delete" }
-        .to change { page.has_content?("John Doe") }
+      it "should be able to delete" do
+        expect { click_on "Delete" }
+          .to change { page.has_content?("John Doe") }
+      end
+
+      it "should be able to update" do
+        click_on "Edit"
+
+        fill_in "Name", with: "Alice Doe"
+        fill_in "Email", with: "alice.doe@example.com"
+        fill_in "Password", with: "secret"
+
+        click_on "Submit"
+
+        expect(page).to have_content "Alice Doe"
+        expect(page).to have_content "alice.doe@example.com"
+      end
+
+      it "should not be able to update without password" do
+        click_on "Edit"
+
+        fill_in "Name", with: "Alice Doe"
+        fill_in "Email", with: "alice.doe@example.com"
+
+        click_on "Submit"
+
+        expect(page).to have_content "Email and password are mandatory"
+      end
+
+      it "should not be able to update without email" do
+        click_on "Edit"
+
+        fill_in "Name", with: "Alice Doe"
+        fill_in "Email", with: ""
+
+        click_on "Submit"
+
+        expect(page).to have_content "Email and password are mandatory"
+      end
     end
 
     context "should not add a new user without" do

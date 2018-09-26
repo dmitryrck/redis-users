@@ -60,7 +60,7 @@ module App
       erb :new
     end
 
-    post "/lists/:list_name" do
+    post "/lists/:list_name/" do
       if present?(params[:email]) && present?(params[:password])
         if $redis.exists(list_name(params))
           user_uuid = SecureRandom.uuid
@@ -83,6 +83,36 @@ module App
         @error = true
 
         erb :new
+      end
+    end
+
+    get "/users/:user_uuid/edit" do
+      if $redis.exists("user-" + params[:user_uuid])
+        user = JSON.parse($redis.get("user-" + params[:user_uuid]))
+
+        params[:name] = user["name"]
+        params[:email] = user["email"]
+        params[:list_name] = user["list_name"]
+
+        erb :new
+      else
+        not_found
+      end
+    end
+
+    post "/lists/:list_name/:user_uuid" do
+      if $redis.exists("user-" + params[:user_uuid])
+        user = JSON.parse($redis.get("user-" + params[:user_uuid]))
+
+        if present?(params[:email]) && present?(params[:password])
+          $redis.set("user-" + params[:user_uuid], JSON.dump(user.merge(params)))
+          redirect list_url(params)
+        else
+          @error = true
+          erb :new
+        end
+      else
+        not_found
       end
     end
 
