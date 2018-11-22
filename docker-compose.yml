@@ -2,17 +2,13 @@ version: "2"
 
 services:
   app:
-    build: .
+    image: dmitryrck/ruby
     volumes:
       - .:/app
-      - bundle_path:/bundle
+      - bundle_path:/usr/local/bundle
     environment:
-      - BUNDLE_PATH=/bundle/vendor
       - BUNDLE_APP_CONFIG=/app/.bundle
-      - BUNDLE_BIN=/bundle/vendor/bin
-      - GEM_HOME=/bundle/vendor
       - REDIS_URL=redis://db:6379/1
-    user: ruby
     working_dir: /app
     command: bundle exec puma -p 3000 config.ru
     ports:
