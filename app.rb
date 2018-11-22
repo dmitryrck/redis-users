@@ -1,17 +1,15 @@
-$redis = Redis.new(url: ENV["REDIS_URL"])
-
 module App
   UNIT_TIME = 60*30
   TEN_MIN   = 60*10
 
   class Application < Sinatra::Base
-    set :test_file, Proc.new {
-      File.read File.dirname(__FILE__)+"/spec/lists_spec.rb"
-    }
-
     helpers do
       def present?(value = nil)
         value != nil && value != ""
+      end
+
+      def redis
+        @redis ||= Redis.new(url: ENV["REDIS_URL"])
       end
 
       def blank?(value = nil)
@@ -31,11 +29,11 @@ module App
       end
 
       def users_by_list(name)
-        $redis
+        redis
           .get(name)
           .split(",")
           .reject { |uuid| blank?(uuid) }
-          .map { |uuid| JSON.parse($redis.get("user-" + uuid)) }
+          .map { |uuid| JSON.parse(redis.get("user-" + uuid)) }
       end
     end
 
@@ -56,10 +54,10 @@ module App
     get "/lists/:list_name" do
       @title = list_title(params)
 
-      @users = if $redis.exists(list_name(params))
+      @users = if redis.exists(list_name(params))
                  users_by_list(list_name(params))
                else
-                 $redis.set(list_name(params), "", ex: App::UNIT_TIME)
+                 redis.set(list_name(params), "", ex: App::UNIT_TIME)
                  []
                end
 
@@ -91,19 +89,19 @@ module App
 
     post "/lists/:list_name/?" do
       if present?(params[:email]) && present?(params[:password])
-        if $redis.exists(list_name(params))
+        if redis.exists(list_name(params))
           user_uuid = SecureRandom.uuid
 
-          $redis
+          redis
             .set(
               "user-" + user_uuid,
               JSON.dump(params.merge("uuid" => user_uuid)),
               ex: App::UNIT_TIME + App::TEN_MIN
             )
 
-          $redis.append(list_name(params), ",#{user_uuid}")
+          redis.append(list_name(params), ",#{user_uuid}")
         else
-          $redis.set(list_name(params), "", ex: App::UNIT_TIME)
+          redis.set(list_name(params), "", ex: App::UNIT_TIME)
         end
 
         redirect list_url(params)
@@ -116,8 +114,8 @@ module App
     end
 
     get "/users/:user_uuid/edit" do
-      if $redis.exists("user-" + params[:user_uuid])
-        user = JSON.parse($redis.get("user-" + params[:user_uuid]))
+      if redis.exists("user-" + params[:user_uuid])
+        user = JSON.parse(redis.get("user-" + params[:user_uuid]))
 
         params[:name] = user["name"]
         params[:email] = user["email"]
@@ -130,11 +128,11 @@ module App
     end
 
     post "/lists/:list_name/:user_uuid" do
-      if $redis.exists("user-" + params[:user_uuid])
-        user = JSON.parse($redis.get("user-" + params[:user_uuid]))
+      if redis.exists("user-" + params[:user_uuid])
+        user = JSON.parse(redis.get("user-" + params[:user_uuid]))
 
         if present?(params[:email]) && present?(params[:password])
-          $redis.set("user-" + params[:user_uuid], JSON.dump(user.merge(params)))
+          redis.set("user-" + params[:user_uuid], JSON.dump(user.merge(params)))
           redirect list_url(params)
         else
           @error = true
@@ -146,11 +144,11 @@ module App
     end
 
     get "/users/:user_uuid/delete" do
-      if $redis.exists("user-" + params[:user_uuid])
-        user = JSON.parse($redis.get("user-" + params[:user_uuid]))
-        list_content = $redis.get(list_name(user))
-        $redis.set(list_name(user), list_content.gsub(user["uuid"], ""))
-        $redis.del("user-" + user["uuid"])
+      if redis.exists("user-" + params[:user_uuid])
+        user = JSON.parse(redis.get("user-" + params[:user_uuid]))
+        list_content = redis.get(list_name(user))
+        redis.set(list_name(user), list_content.gsub(user["uuid"], ""))
+        redis.del("user-" + user["uuid"])
 
         redirect list_url(user)
       else

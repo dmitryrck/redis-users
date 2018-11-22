@@ -1,7 +1,9 @@
 require "spec_helper"
 
 describe App::Application, type: :feature do
-  before { $redis.keys != [] && $redis.del($redis.keys) }
+  before { redis.keys != [] && redis.del(redis.keys) }
+
+  let(:redis) { Redis.new(url: ENV["REDIS_URL"]) }
 
   context "GET /" do
     it "should be ok" do
