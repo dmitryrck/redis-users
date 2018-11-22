@@ -21,7 +21,7 @@ module App
       end
 
       def list_url(params)
-        "/lists/#{params.fetch(:list_name, params["list_name"])}"
+        "/lists/#{params.fetch(:list_name, params['list_name'])}"
       end
 
       def list_title(params)
@@ -79,7 +79,7 @@ module App
         .select { |user| user["email"] == params[:email] }[0]
 
       if @user["password"] == params[:password]
-        @title = "Welcome, #{@user["name"]}."
+        @title = "Welcome, #{@user['name']}."
         erb :success
       else
         @error = true
