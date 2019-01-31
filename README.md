@@ -21,11 +21,8 @@ Take a look at the automated test file for this app in `spec/lists_spec.rb`.
 Setup:
 
 ```terminal
-docker-compose run --rm -u root app bash -c "mkdir -p /bundle/vendor && chown ruby /bundle/vendor"
-docker-compose run --rm app bundle install
+$ docker-compose run --rm app bundle install
 ```
-
-See `bin/setup`.
 
 Run:
 

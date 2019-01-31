@@ -1,6 +1,0 @@
-#!/bin/bash
-
-set -xe
-
-docker-compose run --rm -u root app bash -c "mkdir -p /bundle/vendor && chown ruby /bundle/vendor"
-docker-compose run --rm app bundle install
